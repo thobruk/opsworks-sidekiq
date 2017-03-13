@@ -1,5 +1,8 @@
 node[:deploy].each do |application, deploy|
-  if deploy['sidekiq']
+  if deploy[:application_type] != 'rails'
+    Chef::Log.debug("skipping sidekiq config for #{application} because it's not supposed to be deployed right now.")
+    next
+  elsif deploy['sidekiq']
     sidekiq_config = deploy['sidekiq']
     release_path = ::File.join(deploy[:deploy_to], 'current')
     start_command = sidekiq_config['start_command'] || "bundle exec sidekiq -e production -C config/sidekiq.yml -r ./config/boot.rb 2>&1 >> log/sidekiq.log"
